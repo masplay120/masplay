@@ -20,11 +20,13 @@
             --accent-cyan: #00f0ff;
             --accent-violet: #7000ff;
             --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #7000ff 100%);
+            --live: #ff3b5c;
             --text-primary: #ffffff;
             --text-secondary: #a0a0b0;
             --border-color: rgba(255, 255, 255, 0.08);
             --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.3);
             --glow-violet: 0 0 20px rgba(112, 0, 255, 0.3);
+            --whatsapp-green: #25D366;
             --radius: 16px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -97,204 +99,225 @@
         .hero-buttons { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
 
         /* =========================================
-           CARRUSEL DE SEÑALES (REUTILIZABLE)
+           GRILLA DE CANALES EN VIVO (CORREGIDO)
            ========================================= */
-        .signals-section {
-            padding: 3rem 0;
-            background: var(--bg-primary);
+        .canales-section { padding: 4rem 0; background: var(--bg-primary); }
+        .canales-header {
+            display: flex; flex-wrap: wrap; justify-content: space-between;
+            align-items: flex-end; gap: 1.5rem; margin-bottom: 2rem;
         }
-        .signals-header {
-            text-align: left;
-            margin-bottom: 2rem;
+        .canales-title-block { flex: 1 1 auto; min-width: 250px; }
+        .canales-title { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+        .canales-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; max-width: 520px; }
+        .canales-contador {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.8rem; color: var(--live); font-weight: 700;
+            margin-top: 0.6rem;
+            background: rgba(255, 59, 92, 0.1);
+            border: 1px solid rgba(255, 59, 92, 0.3);
+            padding: 0.3rem 0.9rem; border-radius: 50px;
         }
-        .signals-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin-bottom: 0.4rem;
-            letter-spacing: -0.5px;
+        .canales-contador i { font-size: 0.7rem; }
+
+        .canales-filtros { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .filtro-btn {
+            background: var(--bg-secondary); color: var(--text-primary);
+            border: 1px solid var(--border-color); padding: 0.65rem 1.3rem;
+            border-radius: 50px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            font-family: 'Outfit', sans-serif; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 0.4rem;
         }
-        .signals-subtitle {
+        .filtro-btn:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+        .filtro-btn.activo { background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: var(--glow-violet); }
+
+        .canales-wrapper { position: relative; display: flex; align-items: center; }
+        .canales-track {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 8px 4px 20px;
+            width: 100%;
+            /* align-items: stretch es el default y mantiene las tarjetas del mismo alto */
+        }
+        .canales-track::-webkit-scrollbar { display: none; }
+
+        .canal-card {
+            flex: 0 0 185px;
+            background: var(--bg-secondary);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            height: 100%; /* Asegura que llene el alto del contenedor */
+        }
+        @media (min-width: 768px) { .canal-card { flex: 0 0 215px; } }
+        .canal-card:hover { transform: translateY(-6px); border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+
+        /* ===== LOGO: altura FIJA para que NINGÚN logo estire la tarjeta ===== */
+.canal-logo-box {
+    position: relative;
+    height: 116px; /* 👈 FIX: altura fija en vez de aspect-ratio */
+    width: 100%;
+    background: linear-gradient(135deg, #1d1d2b 0%, #14141c 100%);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    flex-shrink: 0;
+    overflow: hidden; /* 👈 FIX: corta cualquier logo que se salga */
+}
+.canal-logo-box img {
+    max-width: 100%;
+    max-height: 100%; /* 👈 FIX: el logo nunca supera la caja */
+    object-fit: contain;
+    display: block;
+    filter: brightness(0.85) grayscale(0.1);
+    transition: var(--transition);
+}
+.canal-card:hover .canal-logo-box img { filter: brightness(1) grayscale(0); }
+
+        .canal-tag-vivo {
+            position: absolute; top: 8px; left: 8px;
+            background: var(--live); color: #fff;
+            font-size: 0.66rem; font-weight: 700; padding: 3px 9px;
+            border-radius: 50px; text-transform: uppercase;
+            display: inline-flex; align-items: center; gap: 5px;
+            box-shadow: 0 0 10px rgba(255, 59, 92, 0.5);
+        }
+        .canal-tag-vivo::before {
+            content: ''; width: 6px; height: 6px; background: #fff;
+            border-radius: 50%; animation: blink 1.4s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .canal-fallback {
+            font-weight: 700; color: var(--accent-cyan); text-align: center;
+            font-size: 0.9rem; line-height: 1.3; padding: 0 0.5rem;
+        }
+
+        /* FIX DEL HUECO: Estructura flexible sin space-between */
+        .canal-body {
+            padding: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            flex: 1; /* Ocupa el espacio restante de manera uniforme */
+        }
+        .canal-nombre {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.25;
+            min-height: 2.4rem; /* Reserva espacio para 2 líneas, evitando saltos de altura */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .canal-rubro {
+            font-size: 0.76rem;
             color: var(--text-secondary);
-            font-size: 1.05rem;
+            text-transform: capitalize;
             margin: 0;
         }
-        /* El carrusel es full-bleed (ancho completo) como en la captura */
-        .marquee-container {
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            padding: 0.5rem 0;
-            mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
-        }
-        .marquee-track {
-            display: flex;
-            width: max-content;
-            /* Animación continua: NUNCA se pausa */
-            animation: marquee-scroll linear infinite;
-        }
-        @keyframes marquee-scroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        /* Tarjeta estilo captura: rectángulo grande, fondo gris oscuro, logo "apagado" */
-        .marquee-card {
-            flex-shrink: 0;
-            width: 200px;
-            height: 130px;
-            margin-right: 1.25rem; /* margin en vez de gap => bucle -50% perfecto */
-            background: linear-gradient(145deg, #20202b 0%, #14141c 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 18px 22px;
+        .canal-btn-wsp {
+            display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+            background: rgba(37, 211, 102, 0.12); color: var(--whatsapp-green);
+            font-size: 0.8rem; font-weight: 600; padding: 0.55rem 0.6rem;
+            border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3);
             transition: var(--transition);
+            margin-top: auto; /* 👈 CLAVE: Empuja el botón siempre al fondo de la tarjeta */
         }
-        .marquee-card img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            /* Look "dimmed / apagado" premium igual a la imagen */
-            filter: brightness(0.7) grayscale(0.15);
-            transition: var(--transition);
-        }
-        .marquee-card:hover {
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-        }
-        .marquee-card:hover img {
-            filter: brightness(1) grayscale(0);
-        }
+        .canal-btn-wsp:hover { background: var(--whatsapp-green); color: #fff; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
-        /* CATÁLOGO */
-        .catalog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-        .catalog-card {
-            background: var(--bg-secondary);
+        .canales-nav-btn {
+            position: absolute; top: 42%; transform: translateY(-50%); z-index: 5;
+            width: 44px; height: 44px; border-radius: 50%;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 2rem 1.5rem;
-            text-align: center;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
+            background: rgba(20, 20, 31, 0.85); backdrop-filter: blur(10px);
+            color: var(--text-primary); font-size: 1.2rem; cursor: pointer;
+            display: grid; place-items: center; transition: var(--transition);
         }
-        .catalog-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-            background: var(--bg-card-hover);
+        .canales-nav-btn:hover { background: var(--accent-gradient); border-color: transparent; box-shadow: var(--glow-violet); transform: translateY(-50%) scale(1.1); }
+        .canales-nav-btn.prev { left: 4px; }
+        .canales-nav-btn.next { right: 4px; }
+
+        /* CATÁLOGO GRILLA */
+        .catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .catalog-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 2rem 1.5rem; text-align: center;
+            transition: var(--transition); position: relative; overflow: hidden;
         }
-        .catalog-card i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .catalog-card:hover { transform: translateY(-5px); border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); background: var(--bg-card-hover); }
+        .catalog-card i { font-size: 2.5rem; margin-bottom: 1rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .catalog-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
         .catalog-card p { font-size: 0.9rem; color: var(--text-secondary); }
-        .adult-badge {
-            display: inline-block;
-            background: rgba(255, 50, 50, 0.15);
-            color: #ff4444;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-top: 0.5rem;
-            font-weight: 600;
-            border: 1px solid rgba(255, 50, 50, 0.3);
-        }
-        .premium-badge {
-            display: inline-block;
-            background: rgba(112, 0, 255, 0.15);
-            color: #b794ff;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-top: 0.5rem;
-            font-weight: 600;
-            border: 1px solid rgba(112, 0, 255, 0.3);
-        }
-        .included-badge {
-            display: inline-block;
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--accent-cyan);
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            margin-top: 0.5rem;
-            font-weight: 700;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-        }
+        .adult-badge { display: inline-block; background: rgba(255, 50, 50, 0.15); color: #ff4444; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; margin-top: 0.5rem; font-weight: 600; border: 1px solid rgba(255, 50, 50, 0.3); }
+        .premium-badge { display: inline-block; background: rgba(112, 0, 255, 0.15); color: #b794ff; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; margin-top: 0.5rem; font-weight: 600; border: 1px solid rgba(112, 0, 255, 0.3); }
+        .included-badge { display: inline-block; background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; margin-top: 0.5rem; font-weight: 700; border: 1px solid rgba(0, 240, 255, 0.3); }
 
-        /* INFO CLAVE */
-        .info-highlights {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
-        }
-        .highlight-card {
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(112, 0, 255, 0.05) 100%);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 1.8rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 1.2rem;
-            transition: var(--transition);
-        }
+        .info-highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+        .highlight-card { background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(112, 0, 255, 0.05) 100%); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.8rem; display: flex; align-items: flex-start; gap: 1.2rem; transition: var(--transition); }
         .highlight-card:hover { border-color: var(--accent-cyan); transform: translateY(-3px); }
-        .highlight-icon {
-            flex-shrink: 0;
-            width: 50px; height: 50px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--accent-cyan);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.4rem;
-            color: var(--accent-cyan);
-        }
+        .highlight-icon { flex-shrink: 0; width: 50px; height: 50px; background: var(--bg-secondary); border: 1px solid var(--accent-cyan); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: var(--accent-cyan); }
         .highlight-card h4 { font-size: 1.1rem; margin-bottom: 0.3rem; font-weight: 700; }
         .highlight-card p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
         .highlight-card .strong-text { color: var(--accent-cyan); font-weight: 700; }
 
+        /* SECCIÓN PELÍCULAS Y SERIES */
+        .tmdb-section { padding: 5rem 0; background: rgba(255, 255, 255, 0.02); position: relative; overflow: hidden; }
+        .tmdb-section::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 800px; height: 400px; background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, rgba(10, 10, 15, 0) 70%); pointer-events: none; }
+        .tmdb-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1.5rem; margin-bottom: 2rem; position: relative; z-index: 1; }
+        .tmdb-title-block { flex: 1 1 auto; min-width: 250px; }
+        .tmdb-title { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
+        .tmdb-subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; max-width: 520px; }
+        .tmdb-curated-tag { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--accent-violet); font-weight: 600; margin-top: 0.6rem; background: rgba(112, 0, 255, 0.1); border: 1px solid rgba(112, 0, 255, 0.3); padding: 0.3rem 0.8rem; border-radius: 50px; }
+
+        .tmdb-carrusel-wrapper { position: relative; display: flex; align-items: center; z-index: 1; }
+        .tmdb-track { display: flex; gap: 1rem; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; padding: 8px 4px 20px; width: 100%; }
+        .tmdb-track::-webkit-scrollbar { display: none; }
+        .tmdb-card { flex: 0 0 170px; background: var(--bg-secondary); border-radius: 14px; overflow: hidden; border: 1px solid var(--border-color); display: flex; flex-direction: column; transition: var(--transition); position: relative; }
+        @media (min-width: 768px) { .tmdb-card { flex: 0 0 200px; } }
+        .tmdb-card:hover { transform: translateY(-6px); border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+        .tmdb-poster-box { position: relative; aspect-ratio: 2 / 3; background: linear-gradient(135deg, #1d1d2b 0%, #14141c 100%); overflow: hidden; }
+        .tmdb-poster-box img { width: 100%; height: 100%; object-fit: cover; display: block; transition: var(--transition); }
+        .tmdb-card:hover .tmdb-poster-box img { transform: scale(1.05); }
+        .poster-fallback { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; padding: 1rem; background: linear-gradient(135deg, rgba(0,240,255,0.12) 0%, rgba(112,0,255,0.18) 100%); font-weight: 700; font-size: 0.95rem; line-height: 1.3; color: var(--text-primary); }
+        .poster-fallback i { display: block; font-size: 1.6rem; margin-bottom: 0.5rem; color: var(--accent-cyan); opacity: 0.7; }
+        .tmdb-badge { position: absolute; top: 8px; left: 8px; background: rgba(10, 10, 15, 0.85); backdrop-filter: blur(8px); color: var(--accent-cyan); font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(0, 240, 255, 0.3); }
+        .tmdb-badge.serie { color: #b794ff; border-color: rgba(112, 0, 255, 0.4); }
+        .tmdb-card-body { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; justify-content: space-between; }
+        .tmdb-card-title { font-size: 0.95rem; font-weight: 600; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4rem; }
+        .tmdb-card-meta { font-size: 0.78rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.4rem; }
+        .tmdb-card-meta i { color: var(--accent-cyan); font-size: 0.7rem; }
+        .tmdb-btn-wsp { display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(37, 211, 102, 0.12); color: var(--whatsapp-green); font-size: 0.8rem; font-weight: 600; padding: 0.55rem 0.6rem; border-radius: 8px; border: 1px solid rgba(37, 211, 102, 0.3); transition: var(--transition); margin-top: 0.3rem; }
+        .tmdb-btn-wsp:hover { background: var(--whatsapp-green); color: #fff; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+        .tmdb-nav-btn { position: absolute; top: 45%; transform: translateY(-50%); z-index: 5; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border-color); background: rgba(20, 20, 31, 0.85); backdrop-filter: blur(10px); color: var(--text-primary); font-size: 1.2rem; cursor: pointer; display: grid; place-items: center; transition: var(--transition); }
+        .tmdb-nav-btn:hover { background: var(--accent-gradient); border-color: transparent; box-shadow: var(--glow-violet); transform: translateY(-50%) scale(1.1); }
+        .tmdb-nav-btn.prev { left: 4px; }
+        .tmdb-nav-btn.next { right: 4px; }
+        .skeleton-card { flex: 0 0 170px; background: var(--bg-secondary); border-radius: 14px; overflow: hidden; border: 1px solid var(--border-color); }
+        @media (min-width: 768px) { .skeleton-card { flex: 0 0 200px; } }
+        .skeleton-poster { aspect-ratio: 2 / 3; background: linear-gradient(90deg, #1d1d2b 25%, #2a2a3a 50%, #1d1d2b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        .skeleton-line { height: 14px; margin: 0.85rem; border-radius: 6px; background: linear-gradient(90deg, #1d1d2b 25%, #2a2a3a 50%, #1d1d2b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        .skeleton-line.short { width: 60%; height: 10px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        .tmdb-mas-contenido { margin-top: 2.5rem; text-align: center; padding: 2.5rem 2rem; background: linear-gradient(135deg, rgba(0, 240, 255, 0.06) 0%, rgba(112, 0, 255, 0.08) 100%); border: 1px solid var(--border-color); border-radius: var(--radius); position: relative; z-index: 1; overflow: hidden; }
+        .tmdb-mas-contenido::before { content: ''; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(112, 0, 255, 0.15) 0%, transparent 70%); pointer-events: none; }
+        .mas-icon { width: 60px; height: 60px; margin: 0 auto 1rem auto; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #fff; box-shadow: var(--glow-violet); }
+        .tmdb-mas-contenido h3 { font-size: 1.5rem; margin-bottom: 0.6rem; }
+        .tmdb-mas-contenido p { color: var(--text-secondary); margin-bottom: 1.4rem; font-size: 0.98rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .tmdb-mas-contenido .contador-titulos { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); color: var(--accent-cyan); font-weight: 700; font-size: 0.9rem; padding: 0.5rem 1.2rem; border-radius: 50px; margin-bottom: 1.2rem; }
+
         /* PLANES */
-        .plans-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        .plan-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 2.5rem 2rem;
-            position: relative;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-        }
-        .plan-card.featured {
-            border: 1px solid var(--accent-violet);
-            box-shadow: var(--glow-violet);
-            transform: scale(1.03);
-            z-index: 10;
-        }
-        .plan-badge {
-            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            background: var(--accent-gradient); color: #fff;
-            padding: 0.4rem 1.2rem; border-radius: 20px;
-            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap;
-        }
+        .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1100px; margin: 0 auto; }
+        .plan-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2.5rem 2rem; position: relative; transition: var(--transition); display: flex; flex-direction: column; }
+        .plan-card.featured { border: 1px solid var(--accent-violet); box-shadow: var(--glow-violet); transform: scale(1.03); z-index: 10; }
+        .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent-gradient); color: #fff; padding: 0.4rem 1.2rem; border-radius: 20px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
         .plan-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         .plan-desc { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; }
         .plan-price { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.2rem; }
@@ -305,51 +328,20 @@
         .plan-card .btn { width: 100%; }
 
         /* CÓMO EMPEZAR */
-        .steps-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            text-align: center;
-        }
+        .steps-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; text-align: center; }
         .step-item { position: relative; padding: 2rem; }
-        .step-number {
-            width: 50px; height: 50px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--accent-cyan);
-            color: var(--accent-cyan);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: 700;
-            margin: 0 auto 1.5rem auto;
-        }
+        .step-number { width: 50px; height: 50px; background: var(--bg-secondary); border: 2px solid var(--accent-cyan); color: var(--accent-cyan); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; margin: 0 auto 1.5rem auto; }
         .step-item h3 { margin-bottom: 0.8rem; font-size: 1.2rem; }
         .step-item p { color: var(--text-secondary); font-size: 0.95rem; }
 
         /* FAQ */
         .faq-container { max-width: 800px; margin: 0 auto; }
-        .faq-item {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            overflow: hidden;
-            transition: var(--transition);
-        }
+        .faq-item { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 1rem; overflow: hidden; transition: var(--transition); }
         .faq-item.active { border-color: var(--accent-cyan); }
-        .faq-question {
-            width: 100%; padding: 1.5rem; background: none; border: none;
-            color: var(--text-primary); font-size: 1.1rem; font-weight: 600;
-            text-align: left; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-            font-family: 'Outfit', sans-serif;
-        }
+        .faq-question { width: 100%; padding: 1.5rem; background: none; border: none; color: var(--text-primary); font-size: 1.1rem; font-weight: 600; text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Outfit', sans-serif; }
         .faq-question i { transition: transform 0.3s ease; color: var(--accent-cyan); }
         .faq-item.active .faq-question i { transform: rotate(180deg); }
-        .faq-answer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.4s ease;
-            padding: 0 1.5rem; color: var(--text-secondary); line-height: 1.6;
-        }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; padding: 0 1.5rem; color: var(--text-secondary); line-height: 1.6; }
         .faq-item.active .faq-answer { max-height: 250px; padding-bottom: 1.5rem; }
 
         /* FOOTER */
@@ -358,35 +350,27 @@
         .footer-text { color: var(--text-secondary); font-size: 0.9rem; }
 
         /* WHATSAPP FLOTANTE */
-        .whatsapp-float {
-            position: fixed; bottom: 2rem; right: 2rem;
-            width: 60px; height: 60px;
-            background: #25D366; color: white; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2rem;
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
-            z-index: 999; transition: var(--transition);
-            animation: pulse 2s infinite;
-        }
+        .whatsapp-float { position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); z-index: 999; transition: var(--transition); animation: pulse 2s infinite; }
         .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6); }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
 
         @media (min-width: 768px) {
             .hero h1 { font-size: 3.5rem; }
             .hero-buttons { flex-direction: row; justify-content: center; }
             .section-title { font-size: 2.8rem; }
-            .signals-title { font-size: 2.6rem; }
+            .canales-title, .tmdb-title { font-size: 2.6rem; }
+        }
+        @media (max-width: 767px) {
+            .canales-header, .tmdb-header { flex-direction: column; align-items: flex-start; }
+            .canales-filtros, .tmdb-filtros { width: 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.5rem; }
+            .filtro-btn { white-space: nowrap; }
         }
         @media (max-width: 480px) {
             .hero h1 { font-size: 2.2rem; }
             .plan-card.featured { transform: scale(1); }
             .whatsapp-float { width: 55px; height: 55px; font-size: 1.8rem; bottom: 1.5rem; right: 1.5rem; }
-            .signals-title { font-size: 1.9rem; }
-            .marquee-card { width: 150px; height: 100px; margin-right: 0.9rem; padding: 12px 16px; }
+            .canales-title, .tmdb-title { font-size: 1.9rem; }
+            .canales-nav-btn, .tmdb-nav-btn { width: 36px; height: 36px; font-size: 1rem; }
         }
     </style>
 </head>
@@ -398,7 +382,7 @@
             <a href="#" class="logo">
                 <i class="fa-solid fa-play"></i> MÁS PLAY
             </a>
-            <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20pedir%20mi%20Demo%20Gratis%20de%201%20Hora%20de%20Más%20Play." target="_blank" class="btn btn-primary nav-btn">
+            <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20pedir%20mi%20Demo%20Gratis%20de%201%20Hora%20de%20Mas%20Play." target="_blank" class="btn btn-primary nav-btn">
                 <i class="fa-brands fa-whatsapp"></i> Demo Gratis
             </a>
         </div>
@@ -410,7 +394,7 @@
             <h1>Todo el entretenimiento <br><span class="text-gradient">al alcance de tu bolsillo</span></h1>
             <p>Disfrutá de TV en vivo, deportes y el mejor catálogo de películas y series de <strong>Netflix, Amazon Prime Video, Disney+, Max</strong> y mucho más, desde tu Smart TV, TV Box o celular. Sin contratos ni antenas.</p>
             <div class="hero-buttons">
-                <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20pedir%20mi%20Demo%20Gratis%20de%201%20Hora%20de%20Más%20Play." target="_blank" class="btn btn-primary">
+                <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20pedir%20mi%20Demo%20Gratis%20de%201%20Hora%20de%20Mas%20Play." target="_blank" class="btn btn-primary">
                     <i class="fa-brands fa-whatsapp"></i> Pedir Demo Gratis de 1 Hora
                 </a>
                 <a href="#planes" class="btn btn-secondary">
@@ -420,8 +404,36 @@
         </div>
     </section>
 
-    <!-- CONTENEDOR DE CARRUSELES (renderizado por JS) -->
-    <div id="carruseles-container"></div>
+    <!-- GRILLA DE CANALES EN VIVO -->
+    <section class="canales-section" id="canales">
+        <div class="container">
+            <div class="canales-header">
+                <div class="canales-title-block">
+                    <h2 class="canales-title">Grilla de <span class="text-gradient">Canales en Vivo</span></h2>
+                    <p class="canales-subtitle">Encendé la TV y encontrá tu canal favorito. Todos incluidos en tu plan, sin costos adicionales.</p>
+                    <span class="canales-contador">
+                        <i class="fa-solid fa-circle" style="color: var(--live);"></i>
+                        <span id="contadorCanales">0</span> canales disponibles
+                    </span>
+                </div>
+                <div class="canales-filtros">
+                    <button class="filtro-btn activo" data-cat="todos"><i class="fa-solid fa-layer-group"></i> Todos</button>
+                    <button class="filtro-btn" data-cat="nacionales"><i class="fa-solid fa-flag"></i> Nacionales</button>
+                    <button class="filtro-btn" data-cat="noticias"><i class="fa-solid fa-newspaper"></i> Noticias</button>
+                    <button class="filtro-btn" data-cat="deportes"><i class="fa-solid fa-futbol"></i> Deportes</button>
+                    <button class="filtro-btn" data-cat="cine"><i class="fa-solid fa-film"></i> Cine y Series</button>
+                    <button class="filtro-btn" data-cat="infantil"><i class="fa-solid fa-child-reaching"></i> Infantil</button>
+                    <button class="filtro-btn" data-cat="variedades"><i class="fa-solid fa-music"></i> Doc. y Música</button>
+                </div>
+            </div>
+
+            <div class="canales-wrapper">
+                <button class="canales-nav-btn prev" id="canalPrev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="canales-track" id="canalTrack"></div>
+                <button class="canales-nav-btn next" id="canalNext" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </section>
 
     <!-- CATÁLOGO DE CONTENIDOS -->
     <section class="section-padding" style="background: rgba(255,255,255,0.02);">
@@ -502,6 +514,45 @@
                         <p>Todos los packs están <span class="strong-text">incluidos en tu plan</span>: Fútbol, HBO, Universal y Adultos. Sin costos extras.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATÁLOGO MANUAL: PELÍCULAS Y SERIES -->
+    <section class="tmdb-section" id="catalogo">
+        <div class="container">
+            <div class="tmdb-header">
+                <div class="tmdb-title-block">
+                    <h2 class="tmdb-title">Películas y <span class="text-gradient">Series</span></h2>
+                    <p class="tmdb-subtitle">Una pequeña muestra del catálogo que te espera. Vos elegís qué ver, nosotros ponemos la pantalla.</p>
+                    <span class="tmdb-curated-tag">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Catálogo curado y actualizado semanalmente
+                    </span>
+                </div>
+                <div class="tmdb-filtros">
+                    <button class="filtro-btn activo" data-filtro="todo"><i class="fa-solid fa-layer-group"></i> Todo</button>
+                    <button class="filtro-btn" data-filtro="pelicula"><i class="fa-solid fa-film"></i> Películas</button>
+                    <button class="filtro-btn" data-filtro="serie"><i class="fa-solid fa-clapperboard"></i> Series</button>
+                </div>
+            </div>
+
+            <div class="tmdb-carrusel-wrapper">
+                <button class="tmdb-nav-btn prev" id="btnPrev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="tmdb-track" id="carruselTrack"></div>
+                <button class="tmdb-nav-btn next" id="btnNext" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
+            <div class="tmdb-mas-contenido">
+                <div class="mas-icon"><i class="fa-solid fa-infinity"></i></div>
+                <h3>Esto es solo una <span class="text-gradient">pequeña muestra</span></h3>
+                <div class="contador-titulos">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span id="contadorMuestra">+50 títulos</span> en esta vista · Miles más en la app
+                </div>
+                <p>Cada semana sumamos estrenos, clásicos, anime, documentales y contenido infantil. Al contratar, accedés a <strong>todo el catálogo completo</strong> de Más Play, no solo a lo que ves acá.</p>
+                <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20ver%20el%20catalogo%20completo%20de%20peliculas%20y%20series%20de%20Mas%20Play." target="_blank" class="btn btn-primary">
+                    <i class="fa-brands fa-whatsapp"></i> Ver Catálogo Completo
+                </a>
             </div>
         </div>
     </section>
@@ -596,6 +647,16 @@
                         ¡No! Todos los packs premium vienen <strong>incluidos en tu plan</strong> sin ningún costo adicional. Pagás una sola vez y tenés acceso a todo el contenido, incluyendo canales deportivos, series y películas exclusivas de HBO, contenido Universal y la sección para adultos con control parental.
                     </div>
                 </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        ¿El catálogo de la página es todo lo que voy a tener?
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        No, para nada. Lo que ves acá es solo una <strong>pequeña muestra</strong> de los títulos y canales más populares. Dentro de la app vas a encontrar miles de películas, series, anime, documentales y contenido infantil, con estrenos que se suman todas las semanas.
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -608,212 +669,392 @@
             </div>
             <p class="footer-text">© 2026 Más Play. Todos los derechos reservados.</p>
             <p class="footer-text" style="margin-top: 0.5rem; font-size: 0.8rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                El servicio requiere conexión a internet estable. Los nombres de marcas y plataformas son propiedad de sus respectivos dueños y se utilizan solo con fines descriptivos del contenido disponible.
+                El servicio requiere conexión a internet estable. Los nombres de marcas, canales, películas, series y plataformas son propiedad de sus respectivos dueños y se utilizan solo con fines descriptivos. Portadas de películas provistas por TMDB.
             </p>
         </div>
     </footer>
 
     <!-- BOTÓN FLOTANTE WHATSAPP -->
-    <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20más%20información%20sobre%20Más%20Play." target="_blank" class="whatsapp-float" aria-label="Contactar por WhatsApp">
+    <a href="https://wa.me/5493764623515?text=Hola!%20Quiero%20mas%20informacion%20sobre%20Mas%20Play." target="_blank" class="whatsapp-float" aria-label="Contactar por WhatsApp">
         <i class="fa-brands fa-whatsapp"></i>
     </a>
 
     <!-- JAVASCRIPT -->
     <script>
-        /* =========================================
-           CARRUSELES DE SEÑALES (REUTILIZABLE / MODULAR)
-           =========================================
-           CÓMO AGREGAR UN NUEVO CARRUSEL (ej: Películas, Series, Anime):
-           1. Copiá un bloque completo { ... }, desde la llave de apertura hasta la coma final.
-           2. Pegalo antes del cierre del array (antes del ']').
-           3. Cambiá: id, titulo, subtitulo, duracion (segundos de la vuelta completa) y el array 'logos'.
-           4. Cada logo es un objeto { src: 'URL', alt: 'Nombre' }.
-           5. El sistema DUPLICA los logos automáticamente para el bucle infinito: vos solo cargás la lista UNA vez.
-           6. Para ocultarlo temporalmente, cambiá 'activo: true' por 'activo: false'.
-        */
-        const carruseles = [
-            {
-                id: 'canales',
-                titulo: 'Canales <span class="text-gradient">en Vivo</span>',
-                subtitulo: 'Encontrá tus canales favoritos y mucho más en Más Play',
-                duracion: 70, // segundos por vuelta. Más logos = más segundos para que no corra rápido.
-                activo: true,
-                logos: [
-                    // --- Canales nacionales e internacionales ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/EWTN.png', alt: 'EWTN' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/TN.png', alt: 'TN' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal9salta.png', alt: 'Canal 9 Salta' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal7.png', alt: 'Canal 7' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal8.png', alt: 'Canal 8' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/telefe.png', alt: 'Telefé' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/eltrece.png', alt: 'El Trece' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/am%C3%A9rica.png', alt: 'América' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/elnuevebsas.png', alt: 'El Nueve Bs As' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal14santiago.png', alt: 'Canal 14 Santiago del Estero' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal5satelital.png', alt: 'Canal 5 Satelital' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal9mza.png', alt: 'Canal 9 Mendoza' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal10tucumán.png', alt: 'Canal 10 Tucumán' },
-                    // --- Noticias ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/LNplus.png', alt: 'LN+' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/Cr%C3%B3nica.png', alt: 'Crónica' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/A24.png', alt: 'A24' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/canal26.png', alt: 'Canal 26' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/C5N.png', alt: 'C5N' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/CNNE.png', alt: 'CNN en Español' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/France24.png', alt: 'France 24' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/TelediarioRioCuarto.png', alt: 'Telediario Río Cuarto' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/tveopatagonia.png', alt: 'TVeo Patagonia' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/tveocuyo.png', alt: 'TVeo Cuyo' },
-                    // --- Deportes ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/tycsports.png', alt: 'TyC Sports' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/ESPN.png', alt: 'ESPN' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/ESPN2.png', alt: 'ESPN 2' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/ESPN3.png', alt: 'ESPN 3' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/ESPN4.png', alt: 'ESPN 4' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/FOXSPORTS.png', alt: 'FOX Sports' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/FOXSPORTS2.png', alt: 'FOX Sports 2' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/FOXSPORTS3.png', alt: 'FOX Sports 3' },
-                    // --- Entretenimiento / Series / Películas ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/Starchannel.png', alt: 'Star Channel' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/TNT.png', alt: 'TNT' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/TNTseries.png', alt: 'TNT Series' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/TNTnovelas.png', alt: 'TNT Novelas' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/warnerbros.png', alt: 'Warner Bros' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/universaltv.png', alt: 'Universal TV' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/cinemax.png', alt: 'Cinemax' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/usa.png', alt: 'USA Network' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/tlnovelas.png', alt: 'TL Novelas' },
-                    // --- Infantil / Familiar ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/disneychannel.png', alt: 'Disney Channel' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/disneyjr.png', alt: 'Disney Jr.' },
-                    // --- Documentales / Lifestyle / Música ---
-                    { src: 'https://static.superconectados.ar/marketing/Canales/discovery2.png', alt: 'Discovery' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/discoveryturbo.png', alt: 'Discovery Turbo' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/hgtv.png', alt: 'HGTV' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/elgourmet.png', alt: 'El Gourmet' },
-                    { src: 'https://static.superconectados.ar/marketing/Canales/Elfolklorico.png', alt: 'El Folclórico' }
-                ]
-            },
+        const TELEFONO_WSP = "5493764623515";
+        const TMDB_API_KEY = "f5b3d489049ff5b7c5d0fc7c3b890719";
+        const IMG_BASE = "https://image.tmdb.org/t/p/w342";
 
-            // ==========================================================
-            // EJEMPLOS DE FUTUROS CARRUSELES (Descomentá y cargá tus logos)
-            // ==========================================================
-            // {
-            //     id: 'peliculas',
-            //     titulo: 'Películas <span class="text-gradient">de Estreno</span>',
-            //     subtitulo: 'El cine más reciente, sin costo adicional',
-            //     duracion: 60,
-            //     activo: false,
-            //     logos: [
-            //         { src: 'URL_DE_TU_POSTER_1.jpg', alt: 'Pelicula 1' },
-            //         { src: 'URL_DE_TU_POSTER_2.jpg', alt: 'Pelicula 2' }
-            //     ]
-            // },
-            // {
-            //     id: 'series',
-            //     titulo: 'Series <span class="text-gradient">Premium</span>',
-            //     subtitulo: 'Netflix, Prime Video, Disney+, Max y mucho más',
-            //     duracion: 60,
-            //     activo: false,
-            //     logos: [
-            //         { src: 'URL_DE_TU_SERIE_1.jpg', alt: 'Serie 1' },
-            //         { src: 'URL_DE_TU_SERIE_2.jpg', alt: 'Serie 2' }
-            //     ]
-            // }
+        /* ============================================================
+           GRILLA DE CANALES EN VIVO
+           ============================================================ */
+        const CANALES = [
+            { src: "https://static.superconectados.ar/marketing/Canales/EWTN.png", alt: "EWTN", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/TN.png", alt: "TN", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal9salta.png", alt: "Canal 9 Salta", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal7.png", alt: "Canal 7", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal8.png", alt: "Canal 8", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/telefe.png", alt: "Telefé", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/eltrece.png", alt: "El Trece", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/am%C3%A9rica.png", alt: "América", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/elnuevebsas.png", alt: "El Nueve Bs As", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal14santiago.png", alt: "Canal 14 Santiago del Estero", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal5satelital.png", alt: "Canal 5 Satelital", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal9mza.png", alt: "Canal 9 Mendoza", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal10tucum%C3%A1n.png", alt: "Canal 10 Tucumán", cat: "nacionales" },
+            { src: "https://static.superconectados.ar/marketing/Canales/LNplus.png", alt: "LN+", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/Cr%C3%B3nica.png", alt: "Crónica", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/A24.png", alt: "A24", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/canal26.png", alt: "Canal 26", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/C5N.png", alt: "C5N", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/CNNE.png", alt: "CNN en Español", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/France24.png", alt: "France 24", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/TelediarioRioCuarto.png", alt: "Telediario Río Cuarto", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/tveopatagonia.png", alt: "TVeo Patagonia", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/tveocuyo.png", alt: "TVeo Cuyo", cat: "noticias" },
+            { src: "https://static.superconectados.ar/marketing/Canales/tycsports.png", alt: "TyC Sports", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/ESPN.png", alt: "ESPN", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/ESPN2.png", alt: "ESPN 2", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/ESPN3.png", alt: "ESPN 3", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/ESPN4.png", alt: "ESPN 4", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/FOXSPORTS.png", alt: "FOX Sports", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/FOXSPORTS2.png", alt: "FOX Sports 2", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/FOXSPORTS3.png", alt: "FOX Sports 3", cat: "deportes" },
+            { src: "https://static.superconectados.ar/marketing/Canales/Starchannel.png", alt: "Star Channel", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/TNT.png", alt: "TNT", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/TNTseries.png", alt: "TNT Series", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/TNTnovelas.png", alt: "TNT Novelas", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/warnerbros.png", alt: "Warner Bros", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/universaltv.png", alt: "Universal TV", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/cinemax.png", alt: "Cinemax", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/usa.png", alt: "USA Network", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/tlnovelas.png", alt: "TL Novelas", cat: "cine" },
+            { src: "https://static.superconectados.ar/marketing/Canales/disneychannel.png", alt: "Disney Channel", cat: "infantil" },
+            { src: "https://static.superconectados.ar/marketing/Canales/disneyjr.png", alt: "Disney Jr.", cat: "infantil" },
+            { src: "https://static.superconectados.ar/marketing/Canales/discovery2.png", alt: "Discovery", cat: "variedades" },
+            { src: "https://static.superconectados.ar/marketing/Canales/discoveryturbo.png", alt: "Discovery Turbo", cat: "variedades" },
+            { src: "https://static.superconectados.ar/marketing/Canales/hgtv.png", alt: "HGTV", cat: "variedades" },
+            { src: "https://static.superconectados.ar/marketing/Canales/elgourmet.png", alt: "El Gourmet", cat: "variedades" },
+            { src: "https://static.superconectados.ar/marketing/Canales/Elfolklorico.png", alt: "El Folclórico", cat: "variedades" }
         ];
 
-        /* =========================================
-           RENDERIZADO DE CARRUSELES
-           ========================================= */
-        const carruselesContainer = document.getElementById('carruseles-container');
+        const NOMBRES_CAT = {
+            nacionales: "Nacional",
+            noticias: "Noticias",
+            deportes: "Deportes",
+            cine: "Cine y Series",
+            infantil: "Infantil",
+            variedades: "Documentales y Música"
+        };
 
-        function renderCarruseles() {
-            const activos = carruseles.filter(c => c.activo);
+        const canalTrack = document.getElementById("canalTrack");
+        const botonesCanal = document.querySelectorAll(".canales-filtros .filtro-btn");
+        const contadorCanales = document.getElementById("contadorCanales");
+        let categoriaActiva = "todos";
 
-            carruselesContainer.innerHTML = activos.map(c => {
-                // Generamos las tarjetas y las DUPLICAMOS para el bucle infinito perfecto.
-                const tarjetaHTML = (logo) => `
-                    <div class="marquee-card">
-                        <img src="${logo.src}" alt="${logo.alt}" loading="lazy">
-                    </div>
-                `;
-                const unaCopia = c.logos.map(tarjetaHTML).join('');
-                const track = unaCopia + unaCopia; // set original + set idéntico
+        function crearTarjetaCanal(canal) {
+            const card = document.createElement("article");
+            card.className = "canal-card";
 
-                return `
-                    <section class="signals-section" id="${c.id}">
-                        <div class="container">
-                            <div class="signals-header">
-                                <h2 class="signals-title">${c.titulo}</h2>
-                                <p class="signals-subtitle">${c.subtitulo}</p>
-                            </div>
-                        </div>
-                        <div class="marquee-container">
-                            <div class="marquee-track" style="animation-duration: ${c.duracion}s;">
-                                ${track}
-                            </div>
-                        </div>
-                    </section>
-                `;
-            }).join('');
+            const logoBox = document.createElement("div");
+            logoBox.className = "canal-logo-box";
+
+            const tag = document.createElement("span");
+            tag.className = "canal-tag-vivo";
+            tag.textContent = "EN VIVO";
+
+            const img = document.createElement("img");
+            img.src = canal.src;
+            img.alt = canal.alt;
+            img.loading = "lazy";
+            img.onerror = () => {
+                img.style.display = "none";
+                const fallback = document.createElement("span");
+                fallback.className = "canal-fallback";
+                fallback.textContent = canal.alt;
+                logoBox.appendChild(fallback);
+            };
+
+            logoBox.append(tag, img);
+
+            const body = document.createElement("div");
+            body.className = "canal-body";
+
+            const info = document.createElement("div");
+            const nombre = document.createElement("h3");
+            nombre.className = "canal-nombre";
+            nombre.textContent = canal.alt;
+
+            const rubro = document.createElement("p");
+            rubro.className = "canal-rubro";
+            rubro.textContent = NOMBRES_CAT[canal.cat] || canal.cat;
+
+            info.append(nombre, rubro);
+
+            const texto = encodeURIComponent(
+                `Hola! Quiero ver "${canal.alt}" en Más Play. ¿Me pasás info del plan o una demo gratis?`
+            );
+            const link = document.createElement("a");
+            link.className = "canal-btn-wsp";
+            link.href = `https://wa.me/${TELEFONO_WSP}?text=${texto}`;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+            link.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pedir Demo / Plan`;
+
+            body.append(info, link);
+            card.append(logoBox, body);
+
+            return card;
         }
+
+        function renderCanales() {
+            canalTrack.innerHTML = "";
+            const lista = categoriaActiva === "todos"
+                ? CANALES
+                : CANALES.filter(c => c.cat === categoriaActiva);
+
+            lista.forEach(canal => canalTrack.appendChild(crearTarjetaCanal(canal)));
+            canalTrack.scrollLeft = 0;
+
+            if (contadorCanales) contadorCanales.textContent = lista.length;
+        }
+
+        botonesCanal.forEach(btn => {
+            btn.addEventListener("click", () => {
+                botonesCanal.forEach(b => b.classList.remove("activo"));
+                btn.classList.add("activo");
+                categoriaActiva = btn.dataset.cat;
+                renderCanales();
+            });
+        });
+
+        document.getElementById("canalPrev").addEventListener("click", () => {
+            canalTrack.scrollBy({ left: -460, behavior: "smooth" });
+        });
+        document.getElementById("canalNext").addEventListener("click", () => {
+            canalTrack.scrollBy({ left: 460, behavior: "smooth" });
+        });
+
+        /* =========================================
+           CATÁLOGO MANUAL: PELÍCULAS Y SERIES
+           ========================================= */
+        const catalogoManual = [
+            { titulo: 'Monsters University', tipo: 'pelicula' },
+            { titulo: 'Minions', tipo: 'pelicula' },
+            { titulo: 'Monsters, Inc.', q: 'Monsters, Inc.', tipo: 'pelicula' },
+            { titulo: 'Scary Movie 6', q: 'Scary Movie', tipo: 'pelicula' },
+            { titulo: 'La boca del diablo', tipo: 'pelicula' },
+            { titulo: 'Spiderman: Un nuevo día', q: 'Spider-Man: Brand New Day', tipo: 'pelicula' },
+            { titulo: 'Terror en Silent Hill', q: 'Silent Hill', tipo: 'pelicula' },
+            { titulo: 'Toy Story 5', q: 'Toy Story', tipo: 'pelicula' },
+            { titulo: 'Moana', tipo: 'pelicula' },
+            { titulo: 'Posesión infernal', q: 'The Evil Dead', tipo: 'pelicula' },
+            { titulo: 'Mortal Kombat', tipo: 'pelicula' },
+            { titulo: 'The Beast', tipo: 'pelicula' },
+            { titulo: 'En ruta de escape', tipo: 'pelicula' },
+            { titulo: 'Ángel y el pistolero', tipo: 'pelicula' },
+            { titulo: 'La Odisea', q: 'The Odyssey', tipo: 'pelicula' },
+            { titulo: 'Godzilla: Minus Zero', q: 'Godzilla Minus One', tipo: 'pelicula' },
+            { titulo: 'The Mongoose', tipo: 'pelicula' },
+            { titulo: 'The Isolate Thief', tipo: 'pelicula' },
+            { titulo: 'Territorio Salvaje', tipo: 'pelicula' },
+            { titulo: 'Street Fighter', tipo: 'pelicula' },
+            { titulo: 'Las espadas de los guardianes', tipo: 'pelicula' },
+            { titulo: 'Matchbox: La película', q: 'Matchbox', tipo: 'pelicula' },
+            { titulo: 'Hope: El primer impacto', q: 'Hope', tipo: 'pelicula' },
+            { titulo: 'La leyenda del dragón', tipo: 'pelicula' },
+            { titulo: 'La Mujer Rey', q: 'The Woman King', tipo: 'pelicula' },
+            { titulo: 'El corazón de la bestia', q: 'Heart of the Beast', tipo: 'pelicula' },
+            { titulo: 'Carrera contra el tiempo', tipo: 'pelicula' },
+            { titulo: 'El cobrador de deudas', q: 'The Debt Collector', tipo: 'pelicula' },
+            { titulo: 'Troya', q: 'Troy', tipo: 'pelicula' },
+            { titulo: 'Carrera de bestias', tipo: 'pelicula' },
+            { titulo: 'Zona de riesgo', tipo: 'pelicula' },
+            { titulo: 'Hasta el final', tipo: 'pelicula' },
+            { titulo: 'Proyecto: El internado', tipo: 'pelicula' },
+            { titulo: 'Viejos bandidos', tipo: 'pelicula' },
+            { titulo: 'Dura de matar', q: 'Die Hard', tipo: 'pelicula' },
+            { titulo: 'Depredador dominante', q: 'Predator', tipo: 'pelicula' },
+            { titulo: 'Buena suerte, pasalo bien, no mueras', q: 'Good Luck, Have Fun, Don\'t Die', tipo: 'pelicula' },
+            { titulo: 'El último conquistador', tipo: 'pelicula' },
+            { titulo: 'Violencia en la frontera 2', tipo: 'pelicula' },
+            { titulo: 'Espacio/Tiempo', tipo: 'pelicula' },
+            { titulo: 'Aún es de noche en Caracas', tipo: 'pelicula' },
+            { titulo: 'La última semana de Jesús', tipo: 'pelicula' },
+            { titulo: 'Apocalipsis', tipo: 'pelicula' },
+            { titulo: 'Jeremías', tipo: 'pelicula' },
+            { titulo: 'Dary Dixon', tipo: 'pelicula' },
+            { titulo: 'Resident Evil', tipo: 'pelicula' },
+            { titulo: 'Monstruo', q: 'Monster', tipo: 'pelicula' },
+            { titulo: 'La isla del tesoro', q: 'Treasure Island', tipo: 'pelicula' },
+            { titulo: 'The Punisher', tipo: 'serie' },
+            { titulo: 'The Walking Dead', tipo: 'serie' },
+            { titulo: 'The Chosen', tipo: 'serie' },
+            { titulo: 'Te Conozco', tipo: 'serie' },
+            { titulo: 'The Pitt', tipo: 'serie' },
+            { titulo: 'Mi Otra Yo', tipo: 'serie' },
+            { titulo: 'Visionquest', tipo: 'serie' },
+            { titulo: 'Reacher', tipo: 'serie' },
+            { titulo: 'Tierra de Mafiosos', tipo: 'serie' },
+            { titulo: 'Cautiva', tipo: 'serie' },
+            { titulo: 'Mis Muertos Tristes', tipo: 'serie' },
+            { titulo: 'El Chapo', tipo: 'serie' },
+            { titulo: 'Merlinda', tipo: 'serie' }
+        ];
+
+        const tmdbTrack = document.getElementById("carruselTrack");
+        const botonesFiltro = document.querySelectorAll(".tmdb-filtros .filtro-btn");
+        let catalogoRenderizado = [];
+
+        async function buscarPoster(item) {
+            const tipo = item.tipo === 'serie' ? 'tv' : 'movie';
+            const query = item.q || item.titulo;
+            const url = `https://api.themoviedb.org/3/search/${tipo}?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=es-AR&include_adult=false`;
+            try {
+                const res = await fetch(url);
+                if (!res.ok) return { ...item, poster: null };
+                const data = await res.json();
+                const r = (data.results || []).find(x => x.poster_path);
+                return { ...item, poster: r ? r.poster_path : null };
+            } catch (e) {
+                return { ...item, poster: null };
+            }
+        }
+
+        async function buscarEnLotes(items, tam = 8) {
+            const resultados = [];
+            for (let i = 0; i < items.length; i += tam) {
+                const lote = items.slice(i, i + tam);
+                const promesas = lote.map(item => buscarPoster(item));
+                resultados.push(...await Promise.all(promesas));
+            }
+            return resultados;
+        }
+
+        function crearTarjeta(item) {
+            const esSerie = item.tipo === 'serie';
+            const card = document.createElement("article");
+            card.className = "tmdb-card";
+            card.dataset.tipo = item.tipo;
+
+            const posterBox = document.createElement("div");
+            posterBox.className = "tmdb-poster-box";
+
+            if (item.poster) {
+                const img = document.createElement("img");
+                img.src = `${IMG_BASE}${item.poster}`;
+                img.alt = item.titulo;
+                img.loading = "lazy";
+                posterBox.appendChild(img);
+            } else {
+                const fb = document.createElement("div");
+                fb.className = "poster-fallback";
+                fb.innerHTML = `<div><i class="fa-solid ${esSerie ? 'fa-clapperboard' : 'fa-film'}"></i>${item.titulo}</div>`;
+                posterBox.appendChild(fb);
+            }
+
+            const badge = document.createElement("span");
+            badge.className = "tmdb-badge" + (esSerie ? " serie" : "");
+            badge.textContent = esSerie ? "Serie" : "Película";
+            posterBox.appendChild(badge);
+
+            const body = document.createElement("div");
+            body.className = "tmdb-card-body";
+
+            const title = document.createElement("h3");
+            title.className = "tmdb-card-title";
+            title.textContent = item.titulo;
+
+            const meta = document.createElement("p");
+            meta.className = "tmdb-card-meta";
+            meta.innerHTML = `<i class="fa-solid fa-circle-check"></i> Disponible en Más Play`;
+
+            const textoWsp = encodeURIComponent(
+                `Hola! Vi "${item.titulo}" en el catálogo de Más Play y quiero contratar el plan para verlo. ¿Me pasás info?`
+            );
+            const linkWsp = document.createElement("a");
+            linkWsp.className = "tmdb-btn-wsp";
+            linkWsp.href = `https://wa.me/${TELEFONO_WSP}?text=${textoWsp}`;
+            linkWsp.target = "_blank";
+            linkWsp.rel = "noopener noreferrer";
+            linkWsp.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Pedir por WhatsApp`;
+
+            body.append(title, meta, linkWsp);
+            card.append(posterBox, body);
+            return card;
+        }
+
+        function mostrarSkeleton(cantidad = 8) {
+            tmdbTrack.innerHTML = "";
+            for (let i = 0; i < cantidad; i++) {
+                const sk = document.createElement("div");
+                sk.className = "skeleton-card";
+                sk.innerHTML = `
+                    <div class="skeleton-poster"></div>
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line short"></div>
+                `;
+                tmdbTrack.appendChild(sk);
+            }
+        }
+
+        function renderizarCatalogo(filtro = 'todo') {
+            tmdbTrack.innerHTML = "";
+            const visibles = catalogoRenderizado.filter(item =>
+                filtro === 'todo' ? true : item.tipo === filtro
+            );
+            visibles.forEach(item => tmdbTrack.appendChild(crearTarjeta(item)));
+            tmdbTrack.scrollLeft = 0;
+        }
+
+        async function cargarCatalogo() {
+            mostrarSkeleton();
+            catalogoRenderizado = await buscarEnLotes(catalogoManual);
+            renderizarCatalogo('todo');
+            const contador = document.getElementById("contadorMuestra");
+            if (contador) contador.textContent = `+${catalogoRenderizado.length} títulos`;
+        }
+
+        botonesFiltro.forEach(btn => {
+            btn.addEventListener("click", () => {
+                botonesFiltro.forEach(b => b.classList.remove("activo"));
+                btn.classList.add("activo");
+                renderizarCatalogo(btn.dataset.filtro);
+            });
+        });
+
+        document.getElementById("btnPrev").addEventListener("click", () => {
+            tmdbTrack.scrollBy({ left: -600, behavior: "smooth" });
+        });
+        document.getElementById("btnNext").addEventListener("click", () => {
+            tmdbTrack.scrollBy({ left: 600, behavior: "smooth" });
+        });
 
         /* =========================================
            CONFIGURACIÓN DE SERVICIOS (PLANES)
            ========================================= */
         const servicios = [
             {
-                id: 'plan-1-mes',
-                nombre: 'Plan 1 Mes',
-                descripcion: 'Prueba el servicio sin ataduras',
-                precio: '$10.000',
-                periodo: 'ARS / único',
-                badge: 'FLEXIBLE',
-                features: [
-                    'TV en vivo + Deportes nacionales e internacionales',
-                    'Películas y series de Netflix, Prime, Disney+, Max y más',
-                    'Packs Fútbol, HBO, Universal y Adultos INCLUIDOS',
-                    'Hasta 3 dispositivos simultáneos'
-                ],
-                whatsappMsg: 'Hola! Quiero contratar el Plan 1 Mes de Más Play a $10.000 ARS.',
-                activo: true
+                id: 'plan-1-mes', nombre: 'Plan 1 Mes', descripcion: 'Prueba el servicio sin ataduras',
+                precio: '$10.000', periodo: 'ARS / único', badge: 'FLEXIBLE',
+                features: ['TV en vivo + Deportes nacionales e internacionales', 'Películas y series de Netflix, Prime, Disney+, Max y más', 'Packs Fútbol, HBO, Universal y Adultos INCLUIDOS', 'Hasta 3 dispositivos simultáneos'],
+                whatsappMsg: 'Hola! Quiero contratar el Plan 1 Mes de Mas Play a $10.000 ARS.', activo: true
             },
             {
-                id: 'plan-2-meses',
-                nombre: 'Plan 2 Meses',
-                descripcion: 'La mejor relación precio-calidad',
-                precio: '$18.000',
-                periodo: 'ARS / bimestral',
-                badge: 'RECOMENDADO',
-                features: [
-                    'Todo el contenido del Plan 1 Mes',
-                    'Packs premium incluidos sin costo extra',
-                    '¡Ahorras $2.000 respecto al pago mensual!',
-                    'Hasta 3 dispositivos simultáneos'
-                ],
-                whatsappMsg: 'Hola! Quiero contratar el Plan 2 Meses de Más Play a $18.000 ARS (Recomendado).',
-                activo: true
+                id: 'plan-2-meses', nombre: 'Plan 2 Meses', descripcion: 'La mejor relación precio-calidad',
+                precio: '$18.000', periodo: 'ARS / bimestral', badge: 'RECOMENDADO',
+                features: ['Todo el contenido del Plan 1 Mes', 'Packs premium incluidos sin costo extra', '¡Ahorras $2.000 respecto al pago mensual!', 'Hasta 3 dispositivos simultáneos'],
+                whatsappMsg: 'Hola! Quiero contratar el Plan 2 Meses de Mas Play a $18.000 ARS (Recomendado).', activo: true
             },
             {
-                id: 'plan-3-meses',
-                nombre: 'Plan 3 Meses',
-                descripcion: 'Máximo ahorro y entretenimiento asegurado',
-                precio: '$24.000',
-                periodo: 'ARS / trimestral',
-                badge: 'SUPER AHORRO',
-                features: [
-                    'Acceso total a todo el catálogo premium sin límites',
-                    'Todos los packs incluidos (Fútbol, HBO, Universal, Adultos)',
-                    '¡Ahorras $6.000 respecto al pago mensual!',
-                    'Soporte VIP y configuración guiada paso a paso'
-                ],
-                whatsappMsg: 'Hola! Quiero contratar el Plan 3 Meses de Más Play a $24.000 ARS (Super Ahorro).',
-                activo: true
+                id: 'plan-3-meses', nombre: 'Plan 3 Meses', descripcion: 'Máximo ahorro y entretenimiento asegurado',
+                precio: '$24.000', periodo: 'ARS / trimestral', badge: 'SUPER AHORRO',
+                features: ['Acceso total a todo el catálogo premium sin límites', 'Todos los packs incluidos (Fútbol, HBO, Universal, Adultos)', '¡Ahorras $6.000 respecto al pago mensual!', 'Soporte VIP y configuración guiada paso a paso'],
+                whatsappMsg: 'Hola! Quiero contratar el Plan 3 Meses de Mas Play a $24.000 ARS (Super Ahorro).', activo: true
             }
         ];
 
         const plansContainer = document.getElementById('plans-container');
-        const whatsappNumber = '5493764623515';
 
         function renderPlanes() {
             const serviciosActivos = servicios.filter(servicio => servicio.activo);
@@ -822,12 +1063,10 @@
                 return;
             }
             plansContainer.innerHTML = serviciosActivos.map(servicio => {
-                const featuresHTML = servicio.features.map(feature => 
-                    `<li><i class="fa-solid fa-check"></i> ${feature}</li>`
-                ).join('');
+                const featuresHTML = servicio.features.map(feature => `<li><i class="fa-solid fa-check"></i> ${feature}</li>`).join('');
                 const badgeHTML = servicio.badge ? `<div class="plan-badge">${servicio.badge}</div>` : '';
                 const encodedMsg = encodeURIComponent(servicio.whatsappMsg);
-                const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMsg}`;
+                const whatsappLink = `https://wa.me/${TELEFONO_WSP}?text=${encodedMsg}`;
                 const featuredClass = (servicio.badge === 'RECOMENDADO' || servicio.badge === 'SUPER AHORRO') ? 'featured' : '';
                 return `
                     <div class="plan-card ${featuredClass}">
@@ -844,14 +1083,15 @@
             }).join('');
         }
 
+        /* =========================================
+           INICIALIZACIÓN
+           ========================================= */
         document.addEventListener('DOMContentLoaded', () => {
-            renderCarruseles();
+            renderCanales();
             renderPlanes();
+            cargarCatalogo();
         });
 
-        /* =========================================
-           LÓGICA DEL ACORDEÓN (FAQ)
-           ========================================= */
         const faqItems = document.querySelectorAll('.faq-item');
         faqItems.forEach(item => {
             const question = item.querySelector('.faq-question');
@@ -865,9 +1105,6 @@
             });
         });
 
-        /* =========================================
-           NAVBAR SCROLL EFFECT
-           ========================================= */
         const navbar = document.querySelector('.navbar');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
